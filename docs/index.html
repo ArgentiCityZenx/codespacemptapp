@@ -2,512 +2,411 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodespaceMPT+++ | Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
-    <link rel="stylesheet" href="hackrula.css">  
-    <link rel="shortcut icon" href="/favicon.png" type="image/x-icon">
-    <link rel="stylesheet" href="style.css">
+    <title>CodespaceMPT Pro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css" id="theme">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <link rel="icon" type="image/png" href="favicon.png">
     <style>
         body {
-    font-family: 'Roboto', sans-serif;
-    background-color: black;
-    color: white;
-    transition: all 0.3s;
-}
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            font-family: "Inter", sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
 
-#language {
-    width: 130px;
-    height: 30px;
-    background-color: rgb(255, 0, 0);
-    border-radius: 6px;
-    font-family: 'Roboto', sans-serif;
-    color: white;
-    border: 1px solid rgb(255, 0, 0);
-}
+        .CodeMirror {
+            height: 500px;
+        }
 
-#saveBtn {
-    width: 100px;
-    height: 30px;
-    background-color: rgb(3, 127, 16);
-    border-radius: 6px;
-    font-family: 'Roboto', sans-serif;
-    color: white;
-    border: 1px solid rgb(3, 127, 16);
-}
+        #dropZone {
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+            cursor: pointer;        
+        }
 
-#zipname {
-    width: 319px;
-    height: 20px;
-    background-color: rgb(22, 0, 164);
-    border-radius: 6px;
-    font-family: 'Roboto', sans-serif;
-    color: rgb(255, 255, 255);
-    border: 1px solid black;
-}
-input::placeholder {
-    color: rgb(164, 164, 164);
-}
+        button, select {
+            background-color: rgb(195, 1, 1);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
 
-#filename {
-    width: 220px;
-    height: 20px;
-    background-color: rgb(1, 80, 38);
-    border-radius: 6px;
-    font-family: 'Roboto', sans-serif;
-    color: rgb(255, 255, 255);
-    border: 1px solid black;
-}
+        button:hover, select:hover {
+            background-color: rgb(195, 1, 1);
+        }
 
+        button:focus, select:focus {
+            outline: none;
+        }
+        #save-button {
+            background-color: orange;
+        }
+         .coding-box {
+            max-width: 8000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .CodeMirror {
+            height: 400px; /* Set height for CodeMirror editor */
+        }
+        #dropZone {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            width: 1200px;
+            text-align: center;
+            cursor: pointer;
+        }
 
-#div {
-    background-color: rgb(23, 23, 23);
-    width: 300px;
-    font-size: 14px;
-    height: 350px;
-    float: right;
-    margin-top: 70px;
-    margin-right: 7px;
-    justify-content: center;
-    align-items: center;
-    border-radius: 10px;
-    content: normal;
-}
+        
+        .CodeMirror {
+            height: 500px;
+        }
 
+        #dropZone {
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+            cursor: pointer;
+        }
 
-#dropZone {
-    border: 2px dashed #ccc;
-    border-radius: 10px;
-    padding: 20px;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
-    display: flex;
-    margin-bottom: 20px;
-    height: 60px;
-    cursor: pointer;
-}
+        button, select {
+            background-color: red;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
 
-button, select {
-    cursor: pointer;
-}
+        button:hover, select:hover {
+            background-color: rgb(195, 1, 1);
+        }
 
-#theme-button {
-    width: 100px;
-    height: 30px;
-    background-color: rgb(179, 0, 255);
-    border-radius: 6px;
-    font-family: 'Roboto', sans-serif;
-    color: rgb(255, 255, 255);
-    border: 1px solid black;
-}
-
-.podcast {
-    width: 270px;
-}
-
-#division {
-    background-color: rgb(23, 23, 23);
-    width: 300px;
-    font-size: 14px;
-    height: 310px;
-    float: right;
-    margin-top: 70px;
-    margin-right: 10px;
-    justify-content: center;
-    align-items: center;
-    border-radius: 10px;
-    content: normal;
-}
-
-#menu {
-    background-color: rgb(23, 23, 23);
-    width: 300px;
-    font-size: 14px;
-    height: 1160px;
-    float: left;
-    margin-right: 12px;
-    border-radius: 5px;
-}
-
-#mdpreview {
-    flex: 1;
-    min-height: 300px;
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 5px;
-    overflow: auto;
-    background-color: #252323;
-    color: #f0f0f0;
-    display: none;
-}
-
+        button:focus, select:focus {
+            outline: none;
+        }   
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/clike/clike.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/css/css.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/xml/xml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/markdown/markdown.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/shell/shell.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/rust/rust.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/go/go.js"></script>
+    
 </head>
 <body>
-    <div></div>
-    <h1>Main Page</h1>
-    <p>CodespaceMPT+++ is our third code editor. 
-    It has fixes from 2.0 and has support for mpt+++. 
-    We also have a custom theme for CodeMirror that can be accessed 
-    <a href="hackrula.css">here</a>. 
-    </p>
+   <h1>CodespaceMPT Pro</h1>
 
-    <div>
-        <label for="zipname">Enter ZIP File Name:</label>
-        <input type="text" id="zipname" placeholder="Enter ZIP File name. This will be the root of your code.">
-        <button id="saveBtn">Save to PC</button><br><br>
-        
-        <label for="filename">Enter file name without extension:</label>
-        <input type="text" id="filename" placeholder="Enter filename (e.g., folder/filename)">
-        <select id="language">
-            <option value="null">Select a language</option>
-            <option value="javascript">JavaScript</option>
-            <option value="python">Python</option>
-            <option value="html">HTML</option>
-            <option value="css">CSS</option>
-            <option value="ruby">Ruby</option>
-            <option value="go">Go</option>
-            <option value="java">Java</option>
-            <option value="c">C</option>
-            <option value="csharp">C#</option>
-            <option value="cpp">C++</option>
-            <option value="mptp">MPT+++</option>
-            <option value="batch">Batch</option>
-            <option value="markdown">Markdown</option>
-            <option value="swift">Swift</option>
-            <option value="php">PHP</option>
-            <option value="yaml">YAML</option>
-            <option value="rust">Rust</option>
-            <option value="sql">SQL</option>
-            <option value="typescript">TypeScript</option>
-            <option value="rescript">ReScript</option>
-        </select>
-        
-        <button id="theme-button" onclick="toggleTheme()">Theme</button>
-    </div>
+    <h1>Start coding</h1>
+    <p>You may also drop down a file and preview it here!</p>
+
+    <p>Choose the coding box language</p>
+    <select id="languageSelect" onchange="changeMode()">
+        <option value="text/x-csrc">C</option>
+        <option value="text/x-c++src">C++</option>
+        <option value="text/x-csharp">C#</option>
+        <option value="text/x-python">Python</option>
+        <option value="text/javascript">JavaScript</option>
+        <option value="text/css">CSS</option>
+        <option value="text/html">HTML</option>
+        <option value="text/x-markdown">Markdown</option>
+        <option value="text/x-sh">Shell</option>
+        <option value="text/x-rustsrc">Rust</option>
+        <option value="text/x-go">Go</option>
+    </select>
+    <textarea id="codeArea"></textarea>
+    <br>
+    <input type="text" id="fileName" placeholder="Enter file name">
+    <p>Save your file as</p>
+    <select id="extensionSelect">
+        <option value="txt">.txt</option>
+        <option value="html">.html</option>
+        <option value="js">.js</option>
+        <option value="css">.css</option>
+        <option value="md">.md</option>
+        <option value="java">.java</option>
+        <option value="py">.py</option>
+        <option value="cpp">.cpp</option>
+        <option value="c">.c</option>
+        <option value="cs">.cs</option>
+        <option value="php">.php</option>
+        <option value="rb">.rb</option>
+        <option value="xml">.xml</option>
+        <option value="json">.json</option>
+        <option value="sql">.sql</option>
+        <option value="sh">.sh</option>
+        <option value="pl">.pl</option>
+        <option value="swift">.swift</option>
+        <option value="go">.go</option>
+        <option value="lua">.lua</option>
+        <option value="r">.r</option>
+        <option value="scala">.scala</option>
+        <option value="typescript">.ts</option>
+        <option value="rust">.rs</option>
+    </select>
+    <button id="save-button" onclick="saveFile()">Save</button>
+    <input type="file" id="fileInput" style="display:none;" onchange="loadFile()">
+    <p>Or drag and drop your file here</p>
+    <center><div id="dropZone">Drop your file here</div></center>
     
-    <textarea id="editor"></textarea><br>
-    <div id="mdpreview"></div><br>
-    <div id="dropZone">Or drag/drop your file here to edit it</div>
-    <input type="file" id="fileInput" style="display:none;">
-       
+    <script>
+        var attemptCount = 0; // Initialize attempt count
     
-
-<!-- Scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/xml/xml.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/css/css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/ruby/ruby.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/go/go.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/clike/clike.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/shell/shell.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/markdown/markdown.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/2.0.0/marked.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/swift/swift.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/swift/swift.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/yaml/yaml.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/php/php.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/rust/rust.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/sql/sql.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/javascript/javascript.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.js"></script>
-<script src="index.js"></script>
-<script>
-        // Initialize CodeMirror with default settings and dark theme (hackrula)
-const editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
-    lineNumbers: true,
-    mode: 'javascript', // Default mode
-    theme: 'hackrula' // Default to dark theme
-});
-
-const modeMap = {
-    'javascript': 'javascript',
-    'python': 'python',
-    'html': 'xml',
-    'css': 'css',
-    'ruby': 'ruby',
-    'go': 'go',
-    'java': 'clike',
-    'c': 'clike',
-    'csharp': 'clike',
-    'cpp': 'clike',
-    'mptp': 'javascript',
-    'batch': 'shell',
-    'markdown': 'markdown',
-    'swift': 'swift',
-    'yaml': 'yaml',
-    'php': 'php',
-    'rust': 'rust',
-    'sql': 'sql',
-    'typescript': 'typescript',
-    'rescript': 'mllike'
-};
-
-const extensionMap = {
-    'javascript': '.js',
-    'python': '.py',
-    'html': '.html',
-    'css': '.css',
-    'ruby': '.rb',
-    'go': '.go',
-    'java': '.java',
-    'c': '.c',
-    'csharp': '.cs',
-    'cpp': '.cpp',
-    'mptp': '.mptp',
-    'batch': '.bat',
-    'markdown': '.md',
-    'swift': '.swift',
-    'yaml': '.yaml',
-    'php': '.php',
-    'rust': '.rs',
-    'sql': '.sql',
-    'typescript': '.ts',
-    'rescript': '.res'
-};
-
-const suggestFilename = language => {
-    const suggestions = {
-        'javascript': 'script.js',
-        'python': 'app.py',
-        'html': 'index.html',
-        'css': 'style.css',
-        'ruby': 'index.rb',
-        'go': 'main.go',
-        'java': 'main.java',
-        'c': 'main.c',
-        'csharp': 'program.cs',
-        'cpp': 'main.cpp',
-        'mptp': 'main.mptp',
-        'batch': 'script.bat',
-        'markdown': 'README.md',
-        'swift': 'main.swift',
-        'yaml': 'config.yaml',
-        'php': 'index.php',
-        'rust': 'main.rs',
-        'sql': 'query.sql',
-        'typescript': 'main.ts',
-        'rescript': 'main.res',
-        'null': 'Enter filename (e.g., folder/filename)'
-    };
-    document.getElementById('filename').placeholder = suggestions[language] || 'Enter filename';
-};
-
-document.getElementById('language').addEventListener('change', function() {
-    const language = this.value;
-    editor.setOption('mode', modeMap[language]);
-    suggestFilename(language);
-    toggleMarkdownDiv(language);
-});
-
-document.getElementById('saveBtn').addEventListener('click', function() {
-    let filename = document.getElementById('filename').value.trim();
-    const language = document.getElementById('language').value;
-    const content = editor.getValue();
-
-    if (!filename) {
-        alert('Please enter a filename.');
-        return;
-    }
-
-    filename = filename.replace(/\s+/g, '_');
-    const extension = extensionMap[language];
-
-    if (filename.includes('/')) {
-        const zip = new JSZip();
-        const namezip = document.getElementById('zipname').value || 'archive';
-        const folders = filename.split('/').slice(0, -1);
-        let currentFolder = zip;
-
-        folders.forEach(folderName => {
-            currentFolder = currentFolder.folder(folderName);
+        // Function to initialize CodeMirror
+        var codeEditor = CodeMirror.fromTextArea(document.getElementById("codeArea"), {
+            lineNumbers: true,
+            mode: "text/x-csrc",
+            theme: "default",
+            indentUnit: 4,
         });
-
-        const fileName = filename.split('/').pop();
-        currentFolder.file(fileName + extension, content);
-
-        zip.generateAsync({ type: 'blob' })
-            .then(function(content) {
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(content);
-                a.download = `${namezip}.zip`;
-                a.click();
-                URL.revokeObjectURL(a.href);
-            });
-    } else {
-        const blob = new Blob([content], { type: 'text/plain' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = filename + extension;
-        a.click();
-        URL.revokeObjectURL(a.href);
-    }
-});
-
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-
-dropZone.addEventListener('click', () => fileInput.click());
-
-dropZone.addEventListener('dragover', (event) => {
-    event.preventDefault();
-    dropZone.classList.add('dragging');
-});
-
-dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.remove('dragging');
-});
-
-dropZone.addEventListener('drop', (event) => {
-    event.preventDefault();
-    dropZone.classList.remove('dragging');
-    const files = event.dataTransfer.files;
-    if (files.length) {
-        handleFileUpload(files[0]);
-    }
-});
-
-fileInput.addEventListener('change', (event) => {
-    const files = event.target.files;
-    if (files.length) {
-        handleFileUpload(files[0]);
-    }
-});
-
-function handleFileUpload(file) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        editor.setValue(event.target.result);
-        document.getElementById('filename').value = file.name;
-    };
-    reader.readAsText(file);
-}
-
-var darkTheme = true;
-
-function toggleTheme() {
-    const body = document.body;
-    const code = CodeMirror.fromTextArea(document.getElementById('editor'));
-    darkTheme = !darkTheme;
-    if (darkTheme) {
-        body.style.backgroundColor = '#000000';
-        body.style.color = '#ffffff';
-    } else {
-        body.style.backgroundColor = '#ffffff';
-        body.style.color = '#000000';
-    }
-}
-
-
-function changeLanguage() {
-    const language = document.getElementById('language').value;
-    editor.setOption('mode', modeMap[language]);
-    editor.setOption('extraKeys', { 'Ctrl-Space': 'autocomplete' });
-    toggleMarkdownDiv(language);
-}
-
-
-
-
-// Select elements
-const languageSelect = document.getElementById('language');
-const preview = document.getElementById('mdpreview');
-const editorContainer = document.getElementById('editor');
-
-
-// Function to update the Markdown preview
-function updateMarkdownPreview() {
-    const markdown = editor.getValue();
-    const html = marked(markdown);
-    preview.innerHTML = html;
-}
-
-// Function to show or hide the Markdown preview based on selection
-function toggleMarkdownPreview(visible) {
-    preview.style.display = visible ? 'block' : 'none';
-}
-
-// Event listener for changes in the select element
-languageSelect.addEventListener('change', function() {
-    const selectedLanguage = this.value;
-
-    if (selectedLanguage === 'markdown') {
-        // Run the Markdown preview update code
-        updateMarkdownPreview();
-        
-        // Show the Markdown preview
-        toggleMarkdownPreview(true);
-
-        // Attach editor change event listener
-        editor.on('change', updateMarkdownPreview);
-    } else {
-        // Hide the Markdown preview
-        toggleMarkdownPreview(false);
-
-        // Remove editor change event listener if not Markdown
-        editor.off('change', updateMarkdownPreview);
-    }
-});
-</script><br>
-<button style="background-color: purple;"  id="theme-button" onclick="toggleTheme()">Theme</button>
-<script>    
-    let darkTheme = true;
-
-function toggleTheme() {
-    const body = document.body;
-    darkTheme = !darkTheme;
-    if (darkTheme) {
-        body.style.backgroundColor = '#000000';
-        body.style.color = '#ffffff';
-    } else {
-        body.style.backgroundColor = '#ffffff';
-        body.style.color = '#000000';
-    }
-}
-
-</script>
-<h1>Terminal for Git management.</h1>
-<p>You can see files from a GitHub or GitLab repository. More commands are coming soon!</p>
-<iframe src="terminal-git.html" style="width: 500px; height: 500px; border: rgba(0,0,0,0); display: block;"></iframe>
-<h1>Python IDE Complier</h1>
-<p>This Python IDE Complier tests code from Python and complies it. Try it out!</p>
-<iframe src="pythonide.html" style="width: 100%; height: 500px;"></iframe>
-<h1>Markdown Editor</h1>
-<p>This Markdown Editor is to edit files that end in a .md. Try writing about your life here!</p>
-<iframe src="markdown-editor.html" style="width: 100%; height: 500px;"></iframe>
-<h1>Test HTML Sites</h1>
-<p>We have improved our former HTML site tester. Try it here.</p>
-<iframe src="testsites.html" style="width: 100%; height: 1000px; background-color: #f9f9f9;"></iframe>
-<h1>Batch IDE Complier</h1>
-<p>This Batch IDE Complier tests code from Batch and complies it. Try it out!</p>
-<iframe src="batch.html" style="width: 100%; height: 700px;"></iframe>
-<script src="api/console-logging.js"></script>
-
     
-    <div class="testcode">
-        <h1>Test MPT+++ Code</h1>
-        <p>Just write <code>printinconsole("Hello World!")</code> in the terminal and see the result of the code being logged into the console. There are also inputs (inputinconsole("Hello World!")), But they repeat what you say in the console. Variables, images, decor, audio, and key presses are coming soon! </p>
-        
-    </div>
+        function changeMode() {
+            var lang = document.getElementById("languageSelect").value;
+            codeEditor.setOption("mode", lang);
+        }
     
-    <div class="api">
-        <h1>Get API Keys</h1>
-        <p>No CodespaceMPT program is complete without API keys! We will give you an embed for CodespaceMPT+++ Podcasts, our social media, and more!</p>
-        <button onclick="apiredirect()" id="api">Get API Keys</button>
-        <script>
-            function apiredirect() {
-                const api = 'api/index.html'
-                window.open(api, '_blank')
+        function saveFile() {
+            var code = codeEditor.getValue();
+            var extension = document.getElementById("extensionSelect").value;
+            var fileName = document.getElementById("fileName").value.trim();
+    
+            if (!fileName) {
+                attemptCount++; // Increment attempt count
+    
+                if (attemptCount < 10) {
+                    alert("Don't be lazy and pick a name bro");
+                } else {
+                    alert("If you mess around I'll steal your socks at 3 PM and you will cry");
+                }
+                return;
             }
-        </script>
-    </div>
+    
+            fileName = fileName.replace(/\.[^/.]+$/, '') + "." + extension; // Ensure file name has correct extension
+            
+            var blob = new Blob([code], {type: "text/plain;charset=utf-8"});
+            saveAs(blob, fileName);
+        }
+    
+        // Save As Functionality (credit: Eli Grey)
+        function saveAs(blob, fileName) {
+            var url = window.URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.style.display = "none";
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    
+        // Load file into CodeMirror
+        function loadFile() {
+            var fileInput = document.getElementById("fileInput");
+            var file = fileInput.files[0];
+            var reader = new FileReader();
+    
+            reader.onload = function(e) {
+                codeEditor.setValue(e.target.result);
+            }
+    
+            reader.readAsText(file);
+        }
+    
+        // Drag and drop functionality
+        var dropZone = document.getElementById("dropZone");
+    
+        dropZone.addEventListener("dragover", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.style.backgroundColor = "#e1e7ff";
+        });
+    
+        dropZone.addEventListener("dragleave", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.style.backgroundColor = "#ffffff";
+        });
+    
+        dropZone.addEventListener("drop", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.style.backgroundColor = "#ffffff";
+            
+            var files = e.dataTransfer.files;
+            var file = files[0];
+            var reader = new FileReader();
+    
+            reader.onload = function(e) {
+                codeEditor.setValue(e.target.result);
+            }
+    
+            reader.readAsText(file);
+        });
+    
+        // Make drop zone clickable
+        dropZone.addEventListener("click", function() {
+            document.getElementById("fileInput").click();
+        });
+    </script>
+       <button style="background-color: purple;"  id="theme-button" onclick="toggleTheme()">Theme</button>
+       <script>    
+           let darkTheme = true;
+       
+       function toggleTheme() {
+           const body = document.body;
+           darkTheme = !darkTheme;
+           if (darkTheme) {
+               body.style.backgroundColor = '#000000';
+               body.style.color = '#ffffff';
+           } else {
+               body.style.backgroundColor = '#ffffff';
+               body.style.color = '#000000';
+           }
+       }
+
+        function changeLanguage() {
+            var language = document.getElementById("language").value;
+            editor.setOption("mode", language);
+            editor.setOption("extraKeys", {"Ctrl-Space": "autocomplete"});
+        }
+    
+        // Add event listener for drop zone
+        function handleFile(files) {
+            var file = files[0]; // Get the selected file
+            var reader = new FileReader(); // Create a FileReader object
+            reader.onload = function(event) {
+                var content = event.target.result; // Get the file content
+                editor.setValue(content); // Set the content to the editor
+            };
+            reader.readAsText(file); // Read the selected file as text
+        }
+    
+        // Add event listener to the drop zone to trigger file input click
+        var dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('click', function() {
+            var fileInput = document.getElementById('fileInput');
+            fileInput.click(); // Trigger click on file input
+        });
+    
+        // Get user's country using ipinfo.io
+        fetch('https://ipinfo.io/json')
+            .then(response => response.json())
+            .then(data => {
+                var userCountry = data.country;
+                var blockedCountries = ['AF', 'PK', 'IQ', 'IR', 'SA', 'YE', 'OM', 'QA', 'JO', 'LB', 'IL', 'PS', ];
+                if (blockedCountries.includes(userCountry)) {
+                    window.location.href = '403928qr2h708rhrh0rh70.html'; // Redirect to blocked page
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching IP information:', error);
+            });
+            // Get user's country using ipinfo.io
+fetch('https://ipinfo.io/json')
+    .then(response => response.json())
+    .then(data => {
+        var userCountry = data.country;
+        var language;
+        switch (userCountry) {
+            case 'US':
+            case 'GB':
+                language = 'javascript'; // English language for US and UK
+                break;
+            case 'FR':
+                language = 'javascript'; // French language for France
+                break;
+            case 'EC':
+                language = 'javascript'; // Spanish language for Ecuador
+                break;
+            case 'MX':
+            case 'AR':
+            case 'CO':
+            case 'CL':
+            case 'PE':
+            case 'VE':
+            case 'GT':
+            case 'CU':
+            case 'BO':
+            case 'DO':
+            case 'ES':
+                language = 'javascript'; // Spanish language for other Spanish-speaking countries
+                break;
+            case 'PT':
+            case 'BR':
+                language = 'javascript'; // Portuguese language for Portugal
+                break;
+            case 'AT':
+            case 'DE':
+            case 'CH':
+                language = 'javascript'; // German language for Austria, Germany, and Switzerland
+                break;
+            case 'RU':
+                language = 'javascript'; // Russian language for Russia
+                break;
+            case 'JP':
+                language = 'javascript'; // Japanese language for Japan
+                break;
+            case 'KR':
+                language = 'javascript'; // Korean language for South Korea
+                break;
+            case 'CN':
+                language = 'javascript'; // Chinese language for China
+                break;
+            case 'IT':
+                language = 'javascript'; // Italian language for Italy
+                break;
+            // Add more cases for other countries and languages as needed
+            default:
+                language = 'javascript'; // Default to English for other countries
+                break;
+        }
+        document.getElementById("language").value = language; // Set the language dropdown value
+        changeLanguage(); // Call the function to change the language
+    })
+    .catch(error => {
+        console.error('Error fetching IP information:', error);
+    });
+
+    </script>
+    <h1>Terminal for Git management.</h1>
+    <p>You can see files from a GitHub or GitLab repository. More commands are coming soon!</p>
+    <iframe src="terminal-git.html" style="width: 500px; height: 500px; border: rgba(0,0,0,0); display: block;"></iframe>
+    <h1>Python IDE Complier</h1>
+    <p>This Python IDE Complier tests code from Python and complies it. Try it out!</p>
+    <iframe src="pythonide.html" style="width: 100%; height: 500px;"></iframe>
+    <h1>Markdown Editor</h1>
+    <p>This Markdown Editor is to edit files that end in a .md. Try writing about your life here!</p>
+    <iframe src="markdown-editor.html" style="width: 100%; height: 500px;"></iframe>
+    <h1>Get APIs</h1>
+    <p>We are currently giving out our API keys. You can see them <a href="api/index.html" target="_blank">here</a>. We even have an API in our console! Press F12 to see the message.</p>
+    <h1>Test HTML Sites</h1>
+    <p>We have improved our former HTML site tester. Try it here.</p>
+    <iframe src="testsites.html" style="width: 100%; height: 1000px; background-color: #f9f9f9;"></iframe>
+    <script src="api/console-logging.js"></script>
     <script>
         window.onload = function() {
             window.scrollTo(0, 0);
