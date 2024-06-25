@@ -125,7 +125,54 @@
     <h1>Start coding</h1>
     <p>You may also drop down a file and preview it here!</p>
 
-    <iframe src="https://codespacempt.gitlab.io/2.0/codingbox.html/"></iframe>
+        <p>Choose the coding box language</p>
+    <select id="languageSelect" onchange="changeMode()">
+        <option value="text/x-csrc">C</option>
+        <option value="text/x-c++src">C++</option>
+        <option value="text/x-csharp">C#</option>
+        <option value="text/x-python">Python</option>
+        <option value="text/javascript">JavaScript</option>
+        <option value="text/css">CSS</option>
+        <option value="text/html">HTML</option>
+        <option value="text/x-markdown">Markdown</option>
+        <option value="text/x-sh">Shell</option>
+        <option value="text/x-rustsrc">Rust</option>
+        <option value="text/x-go">Go</option>
+    </select>
+    <textarea id="codeArea"></textarea>
+    <br>
+    <input type="text" id="fileName" placeholder="Enter file name">
+    <p>Save your file as</p>
+    <select id="extensionSelect">
+        <option value="txt">.txt</option>
+        <option value="html">.html</option>
+        <option value="js">.js</option>
+        <option value="css">.css</option>
+        <option value="md">.md</option>
+        <option value="java">.java</option>
+        <option value="py">.py</option>
+        <option value="cpp">.cpp</option>
+        <option value="c">.c</option>
+        <option value="cs">.cs</option>
+        <option value="php">.php</option>
+        <option value="rb">.rb</option>
+        <option value="xml">.xml</option>
+        <option value="json">.json</option>
+        <option value="sql">.sql</option>
+        <option value="sh">.sh</option>
+        <option value="pl">.pl</option>
+        <option value="swift">.swift</option>
+        <option value="go">.go</option>
+        <option value="lua">.lua</option>
+        <option value="r">.r</option>
+        <option value="scala">.scala</option>
+        <option value="typescript">.ts</option>
+        <option value="rust">.rs</option>
+    </select>
+    <button id="save-button" onclick="saveFile()">Save</button>
+    <input type="file" id="fileInput" style="display:none;" onchange="loadFile()">
+    <p>Or drag and drop your file here</p>
+    <center><div id="dropZone">Drop your file here</div></center>
     <script>
         var attemptCount = 0; // Initialize attempt count
     
