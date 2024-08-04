@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="title"></title>
+  <link rel="shortcut icon" href="https://gitlab.com/codespacempt/pre-release/-/raw/main/public/favicon.png?ref_type=heads" type="image/x-icon">
+  
+  <!-- Include Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  <!-- Include CodeMirror CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/monokai.min.css">
+
+  <!-- Include CodeMirror JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <style>
+    body {
+      font-family: system-ui;
+      color: white;
+      background-color: black;
+    }
+    #file-structure {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .folder, .file {
+      margin-left: 10px;
+      position: relative;
+    }
+    .folder i, .file i {
+      margin-right: 5px;
+    }
+    .delete-button {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+    .folder:hover .delete-button,
+    .file:hover .delete-button {
+      display: inline;
+    }
+    .trash-bin {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: red;
+    }
+    .folder:hover .trash-bin,
+    .file:hover .trash-bin,
+    .trash-bin:hover {
+      display: inline;
+    }
+    .folder > ul {
+      display: none;
+      margin-left: 20px;
+    }
+    .file-contents {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      display: none;
+    }
+    button {
+      color: rgb(255, 255, 255);
+      background-color: darkgreen;
+      width: 150px;
+      height: 32px;
+      border: 3px solid darkgreen;
+      border-radius: 10px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .image-container {
+      margin-top: 20px;
+    }
+    .image-container img {
+      max-width: 100%;
+      height: auto;
+    }
+    #filename {
+      background-color: red;
+      border: 2px solid red;
+      border-radius: 5px;
+      margin-left: 2px;
+      color: white;
+      height: 25px;
+    }
+    #filename::placeholder {
+      color: white;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="file-structure"></div><br>
+  
+  <label for="filename">File Name:</label>
+  <input type="text" id="filename" name="filename" placeholder="Enter file name">
+  <button onclick="saveFile()">Save Changes</button>
+  <button onclick="createZip()" style="background-color: blue; border: 3px solid blue; ">Save repository</button>
+  <br><br>
+
+  <textarea id="code"></textarea>
+  <br>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/mode/clike/clike.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/mode/yaml/yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/mode/markdown/markdown.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/mode/ruby/ruby.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/mode/go/go.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/mode/vue/vue.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/mode/php/php.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.1/mode/sql/sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/2.0.0/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/agate.min.css">
+
+  <div id="preview"></div>
+
+  <script>
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        mode: "javascript",
+        theme: "monokai"
+    });
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var repoName = urlParams.get('repoName') || 'default-repo';
+    var fileSystem = JSON.parse(localStorage.getItem(repoName)) || {};
+
+    function saveToLocalStorage() {
+        localStorage.setItem(repoName, JSON.stringify(fileSystem));
+    }
+
+    function updateTitleFromURL() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var repoName = urlParams.get('repoName') || 'default-repo';
+        document.title = `Repo: ${repoName}`;
+    }
+
+    function getIconClass(fileName) {
+        const extension = fileName.split('.').pop().toLowerCase();
+        const icons = {
+            py: 'fab fa-python',
+            html: 'fab fa-html5',
+            css: 'fab fa-css3-alt',
+            js: 'fab fa-js-square',
+            java: 'fab fa-java',
+            cpp: 'fas fa-code',
+            cs: 'fas fa-file-code',
+            c: 'fas fa-file-code',
+            rs: 'fas fa-file-code',
+            ts: 'fab fa-js',
+            yaml: 'fas fa-file-alt',
+            md: 'fas fa-file-alt',
+            txt: 'fas fa-file-alt',
+            json: 'fas fa-file-alt',
+            php: 'fab fa-php',
+            go: 'fas fa-file-code',
+            rb: 'fas fa-gem',
+            vue: 'fab fa-vuejs',
+            kt: 'fas fa-file-code',
+            hbs: 'fas fa-file-code',
+            m: 'fas fa-file-code',
+            swift: 'fab fa-swift',
+            mpt: 'fas fa-file-code'
+        };
+        return icons[extension] || 'fas fa-file';
+    }
+
+    function renderFileStructure(container, structure) {
+        container.innerHTML = '';
+        Object.keys(structure).forEach(key => {
+            if (typeof structure[key] === 'object') {
+                const folder = document.createElement('div');
+                folder.classList.add('folder');
+                folder.innerHTML = `<i class="fas fa-folder"></i> ${key} <i class="fas fa-trash trash-bin" onclick="deleteItem('${key}', true)"></i>`;
+                const subFolder = document.createElement('ul');
+                renderFileStructure(subFolder, structure[key]);
+                folder.appendChild(subFolder);
+                container.appendChild(folder);
+
+                folder.addEventListener('click', function() {
+                    const subFolders = folder.querySelectorAll('ul');
+                    subFolders.forEach(subFolder => {
+                        subFolder.style.display = subFolder.style.display === 'none' ? 'block' : 'none';
+                    });
+                });
+            } else {
+                const file = document.createElement('div');
+                file.classList.add('file');
+                const iconClass = getIconClass(key);
+                file.innerHTML = `<i class="${iconClass}"></i> ${key} <i class="fas fa-trash trash-bin" onclick="deleteItem('${key}', false)"></i>`;
+                file.addEventListener('click', function() {
+                    editor.setValue(structure[key]);
+                    document.getElementById('filename').value = key;
+                });
+                container.appendChild(file);
+            }
+        });
+    }
+
+    function addFileOrFolder(filePath, content) {
+        const parts = filePath.split('/');
+        let current = fileSystem;
+
+        for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!current[part]) {
+                current[part] = {};
+            }
+            current = current[part];
+        }
+
+        current[parts[parts.length - 1]] = content;
+    }
+
+    function deleteItem(name, isFolder) {
+        const parts = name.split('/');
+        let current = fileSystem;
+
+        for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!current[part]) {
+                return;
+            }
+            current = current[part];
+        }
+
+        if (isFolder) {
+            delete current[parts[parts.length - 1]];
+        } else {
+            delete current[parts[parts.length - 1]];
+        }
+
+        saveToLocalStorage();
+        renderFileStructure(document.getElementById('file-structure'), fileSystem);
+    }
+
+    function saveFile() {
+        const fileName = document.getElementById('filename').value;
+        const fileContent = editor.getValue();
+
+        if (!fileName) {
+            alert('Please enter a file name');
+            return;
+        }
+
+        addFileOrFolder(fileName, fileContent);
+        saveToLocalStorage();
+        renderFileStructure(document.getElementById('file-structure'), fileSystem);
+    }
+
+    function createZip() {
+        var zip = new JSZip();
+        function addFilesToZip(zip, structure, path) {
+            Object.keys(structure).forEach(key => {
+                const fullPath = path ? `${path}/${key}` : key;
+                if (typeof structure[key] === 'object') {
+                    const folder = zip.folder(fullPath);
+                    addFilesToZip(folder, structure[key], fullPath);
+                } else {
+                    zip.file(fullPath, structure[key]);
+                }
+            });
+        }
+
+        addFilesToZip(zip, fileSystem, '');
+        zip.generateAsync({ type: 'blob' }).then(content => {
+            saveAs(content, `${repoName}.zip`);
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        updateTitleFromURL();
+        renderFileStructure(document.getElementById('file-structure'), fileSystem);
+    });
+  </script>
+<div id="dropzone" style="border: 2px dashed gray; padding: 20px; margin-top: 20px; text-align: center;">
+  Drag & Drop files or click for select folders for add them
+  <input type="file" id="fileInput" webkitdirectory directory multiple style="display:none;" />
+</div>
+<script>
+function handleFileSelect(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    const files = event.dataTransfer ? event.dataTransfer.files : event.target.files;
+    
+    Array.from(files).forEach(file => {
+        if (file.type === "application/x-directory") {
+            // Handle directories if supported
+            handleDirectory(file);
+        } else {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const filePath = file.webkitRelativePath || file.name;
+                const content = e.target.result;
+                addFileOrFolder(filePath, content);
+                saveToLocalStorage();
+                renderFileStructure(document.getElementById('file-structure'), fileSystem);
+            };
+            reader.readAsText(file);
+        }
+    });
+}
+
+function handleDirectory(directory) {
+    // Handle directories if supported
+    alert('Directories are not fully supported in this example.');
+}
+
+function handleDragOver(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    document.getElementById('dropzone').classList.add('dragover');
+}
+
+function handleDragLeave(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    document.getElementById('dropzone').classList.remove('dragover');
+}
+
+document.getElementById('dropzone').addEventListener('dragover', handleDragOver);
+document.getElementById('dropzone').addEventListener('dragleave', handleDragLeave);
+document.getElementById('dropzone').addEventListener('drop', handleFileSelect);
+
+document.getElementById('dropzone').addEventListener('click', function() {
+    document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+</script>
+</body>
+</html>

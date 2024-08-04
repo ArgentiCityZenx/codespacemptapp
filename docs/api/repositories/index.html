@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <body>
+    <script>
+        function repos() {
+            var repos = JSON.parse(localStorage.getItem('repos'));
+            if (repos) {
+                var json = { repos: repos };
+                var jsonStr = JSON.stringify(json, null, 2);
+                
+                // Create a Blob object from the JSON string
+                var blob = new Blob([jsonStr], { type: 'application/json' });
+                
+                // Create a URL for the Blob object
+                var url = URL.createObjectURL(blob);
+                
+                
+                window.location.href = url;
+                
+                // Clean up the URL object after opening
+                setTimeout(function() {
+                    URL.revokeObjectURL(url);
+                }, 0);
+            } else {
+                document.body.innerHTML = "No repos found in localStorage"
+            }
+        }
+        repos()
+    </script>
+    </body>
+</html>
