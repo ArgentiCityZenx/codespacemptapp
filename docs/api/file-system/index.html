@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repo File System Viewer</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBV-ORfPHX4ceoitgqxHAcGpY-mILltv-4",
+            authDomain: "codespacempt-e73bc.firebaseapp.com",
+            projectId: "codespacempt-e73bc",
+            storageBucket: "codespacempt-e73bc.appspot.com",
+            messagingSenderId: "696364541552",
+            appId: "1:696364541552:web:3c9e760749ea15ce1cf6b5"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Initialize Firestore
+        const db = firebase.firestore();
+
+        async function fetchRepoData(repoName) {
+            const repoRef = db.collection('repos').doc(repoName);
+            const docSnap = await repoRef.get();
+            if (docSnap.exists) {
+                const data = docSnap.data();
+                const formattedData = {
+                    description: data.description || "",
+                    files: data.files || {},
+                    name: data.name || ""
+                };
+                return formattedData;
+            } else {
+                console.log("No such document!");
+                return null;
+            }
+        }
+
+        function downloadJson(data) {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'repodata.json'; // Set the desired filename here
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url); // Clean up the URL object
+        }
+
+        async function handleFetchAndDownload() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const repoName = urlParams.get('repoName');
+            if (!repoName) {
+                console.log("No repo name provided!");
+                return;
+            }
+            const data = await fetchRepoData(repoName);
+            if (data) {
+                downloadJson(data);
+            }
+        }
+
+        window.onload = handleFetchAndDownload;
+    </script>
+</head>
+<body>
+    <h1>Repo File System Viewer</h1>
+</body>
+</html>

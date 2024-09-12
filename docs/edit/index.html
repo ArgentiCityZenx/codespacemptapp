@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="title"></title>
+  <link rel="stylesheet" href="../css/edit-style.css">
+  <link rel="shortcut icon" href="https://gitlab.com/codespacempt/pre-release/-/raw/main/public/favicon.png?ref_type=heads" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/monokai.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+</head>
+<body>
+    <!-- Overlay -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Password Popup -->
+    <div id="passwordPopup" class="popup">
+        <h2 id="popupTitle">Enter Password</h2>
+        <input type="password" id="password" placeholder="Enter password" required>
+        <button class="btn" onclick="handlePassword()">Submit</button>
+        <p id="error" class="error">Incorrect password, try again.</p>
+    </div>
+
+    <!-- Protected Content -->
+    <div id="content" class="content">
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+      apiKey: "AIzaSyBV-ORfPHX4ceoitgqxHAcGpY-mILltv-4",
+      authDomain: "codespacempt-e73bc.firebaseapp.com",
+      projectId: "codespacempt-e73bc",
+      storageBucket: "codespacempt-e73bc.appspot.com",
+      messagingSenderId: "696364541552",
+      appId: "1:696364541552:web:3c9e760749ea15ce1cf6b5"
+    };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Get repoName from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const repoName = urlParams.get('repoName');
+
+        // Show the popup or the protected content
+        function showPopup() {
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('passwordPopup').classList.add('active');
+        }
+
+        function hidePopup() {
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('passwordPopup').classList.remove('active');
+        }
+
+        function showContent() {
+            hidePopup();
+            document.getElementById('content').style.display = 'block';
+            document.body.style.overflow = 'auto'; // Allow scrolling when content is visible
+        }
+
+        function handlePassword() {
+            const enteredPassword = document.getElementById('password').value;
+
+            db.collection('repos').doc(repoName).get().then(doc => {
+                if (doc.exists) {
+                    const storedPassword = doc.data().password;
+
+                    if (!storedPassword) {
+                        // First time setup, store the password
+                        db.collection('repos').doc(repoName).update({
+                            password: enteredPassword
+                        }).then(() => {
+                            alert('Password set! Redirecting...');
+                            showContent();
+                        }).catch(error => {
+                            console.error("Error setting password: ", error);
+                        });
+                    } else {
+                        // Password validation
+                        if (enteredPassword === storedPassword) {
+                            alert('Correct password! Accessing content...');
+                            showContent();
+                        } else {
+                            // Show error message if password is incorrect
+                            document.getElementById('error').style.display = 'block';
+                        }
+                    }
+                } else {
+                    // First time setup, store the password
+                    db.collection('repos').doc(repoName).set({
+                        password: enteredPassword
+                    }).then(() => {
+                        alert('Password set! Redirecting...');
+                        showContent();
+                    }).catch(error => {
+                        console.error("Error setting password: ", error);
+                    });
+                }
+            }).catch(error => {
+                console.error("Error getting document: ", error);
+            });
+        }
+
+        // Check if password should be shown or content displayed
+        if (repoName) {
+            showPopup();
+        } else {
+            alert('Missing repoName parameter in URL.');
+        }
+    </script>
+  <div class="wrapper">
+    <div class="container">
+        <div class="tabs">
+          <ul>
+            <li class="sign_in_li" id="viewrepo" role="button">View</li>
+            <li class="sign_up_li" id="editrepo" role="button">Edit</li>
+          </ul>
+        </div>
+  <div id="file-structure"></div><br>
+  <div id="editing">
+  <label for="filename">File Name:</label>
+  <input type="text" id="filename" name="filename" placeholder="Enter file name">
+  <button onclick="saveFile()">Save Changes</button>
+  <button onclick="createZip()" style="background-color: blue; border: 3px solid blue; ">Save repository</button>
+  <br><br>
+
+  <textarea id="code"></textarea>
+  <br>
+
+  <div id="preview"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/2.0.0/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/agate.min.css"></script>
+  <script>
+
+if (!firebase.apps.length) {
+        // Solo inicializa Firebase si no ha sido inicializado
+        firebase.initializeApp(firebaseConfig);
+      } else {
+        // Firebase ya está inicializado
+        firebase.app(); // Puedes acceder a la instancia inicializada si lo necesitas
+}
+
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+      lineNumbers: true,
+      mode: "javascript",
+      theme: "monokai"
+    });
+
+    var fileSystem = JSON.parse(localStorage.getItem(repoName)) || {};
+
+    function saveToFirestore() {
+      const repoName = new URLSearchParams(window.location.search).get('repoName') || 'default-repo';
+      db.collection("repos").doc(repoName).update({ files: fileSystem })
+        .then(() => console.log("Saved to Firestore"))
+        .catch(error => console.error("Error saving: ", error));
+    }
+
+    function loadFromFirestore() {
+      const repoName = new URLSearchParams(window.location.search).get('repoName') || 'default-repo';
+      db.collection("repos").doc(repoName).get().then((doc) => {
+        if (doc.exists) {
+          fileSystem = doc.data().files || {};
+          renderFileStructure(document.getElementById('file-structure'), fileSystem);
+        } else {
+          console.log("Repo not found.");
+        }
+      }).catch((error) => console.error("Error loading: ", error));
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      loadFromFirestore();
+    });
+
+    function saveToLocalStorage() {
+      localStorage.setItem(repoName, JSON.stringify(fileSystem));
+    }
+
+    function getIconClass(fileName) {
+      const extension = fileName.split('.').pop().toLowerCase();
+      const icons = {
+  py: 'fab fa-python',
+  html: 'fab fa-html5',
+  css: 'fab fa-css3-alt',
+  js: 'fab fa-js-square',
+  java: 'fab fa-java',
+  cpp: 'fas fa-code',
+  txt: 'fas fa-file-alt',
+  json: 'fas fa-file-alt',
+  md: 'fas fa-file-alt',
+  git: "fab fa-git-alt",
+  php: 'fab fa-php',
+  rb: 'fas fa-gem',       // Ruby
+  ts: 'fab fa-js-square', // TypeScript (using JS icon)
+  xml: 'fas fa-code',     // XML file
+  yaml: 'fas fa-file-alt', // YAML file
+  sh: 'fas fa-terminal',   // Shell script
+  docker: 'fab fa-docker', // Docker
+  sql: 'fas fa-database',  // SQL Database
+  go: 'fab fa-golang',     // Go (using external Golang icon)
+  swift: 'fab fa-swift',   // Swift
+  cs: 'fab fa-microsoft',  // C# (using Microsoft logo)
+  zip: 'fas fa-file-archive', // Compressed file
+  pdf: 'fas fa-file-pdf',   // PDF file
+  png: 'fas fa-file-image', // PNG image
+  jpg: 'fas fa-file-image', // JPG image
+  mp3: 'fas fa-file-audio', // Audio file
+  mp4: 'fas fa-file-video', // Video file
+  exe: 'fas fa-file',       // Executable
+  iso: 'fas fa-compact-disc', // ISO file
+  csv: 'fas fa-file-csv',    // CSV file
+      };
+      return icons[extension] || 'fas fa-file';
+    }
+
+    function renderFileStructure(container, structure) {
+      container.innerHTML = '';
+      Object.keys(structure).forEach(key => {
+        if (typeof structure[key] === 'object') {
+          const folder = document.createElement('div');
+          folder.classList.add('folder');
+          folder.innerHTML = `<i class="fas fa-folder"></i> ${key} <i class="fas fa-trash trash-bin" onclick="deleteItem('${key}', true)"></i>`;
+          const subFolder = document.createElement('ul');
+          renderFileStructure(subFolder, structure[key]);
+          folder.appendChild(subFolder);
+          container.appendChild(folder);
+        } else {
+          const file = document.createElement('div');
+          file.classList.add('file');
+          const iconClass = getIconClass(key);
+          file.innerHTML = `<i class="${iconClass}"></i> ${key} <i class="fas fa-trash trash-bin" onclick="deleteItem('${key}', false)"></i>`;
+          file.addEventListener('click', function() {
+            editor.setValue(structure[key]);
+            document.getElementById('filename').value = key;
+          });
+          container.appendChild(file);
+        }
+      });
+    }
+
+    function deleteItem(name, isFolder) {
+      const parts = name.split('/');
+      let current = fileSystem;
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i];
+        if (!current[part]) return;
+        current = current[part];
+      }
+      delete current[parts[parts.length - 1]];
+      saveToFirestore();
+      saveToLocalStorage();
+      renderFileStructure(document.getElementById('file-structure'), fileSystem);
+    }
+
+    function saveFile() {
+      const fileName = document.getElementById('filename').value;
+      if (!fileName) return;
+      const fileContent = editor.getValue();
+      const parts = fileName.split('/');
+      let current = fileSystem;
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i];
+        if (!current[part]) current[part] = {};
+        current = current[part];
+      }
+      current[parts[parts.length - 1]] = fileContent;
+      saveToFirestore();
+      saveToLocalStorage();
+      renderFileStructure(document.getElementById('file-structure'), fileSystem);
+    }
+
+    function createZip() {
+      const zip = new JSZip();
+      function addFiles(obj, path = '') {
+        Object.keys(obj).forEach(key => {
+          const value = obj[key];
+          if (typeof value === 'object') {
+            addFiles(value, path + key + '/');
+          } else {
+            zip.file(path + key, value);
+          }
+        });
+      }
+      addFiles(fileSystem);
+      zip.generateAsync({ type: 'blob' }).then(content => {
+        saveAs(content, repoName + '.zip');
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+    let view = false;
+    document.getElementById("editing").style.display = view ? "none" : "block";
+    document.getElementById("viewrepo").addEventListener("click", function() {
+        view = true;
+        document.getElementById("editing").style.display = "none";
+    });
+    document.getElementById("editrepo").addEventListener("click", function() {
+        view = false;
+        document.getElementById("editing").style.display = "block";
+    });
+});
+
+function updateTitle() {
+  const title = document.getElementById('title')
+  const urlParams = new URLSearchParams(window.location.search);
+  const repoName = urlParams.get('repoName');
+
+  title.innerHTML = `Editing ${repoName}`
+};
+
+updateTitle();
+  </script>
+  
+<h4>Share this QR and show other people your work!</h4>
+<br><br>
+    
+<canvas id="qrCode"></canvas>
+<br>
+<a id="downloadLink" href="#" download="qr-code.png">Download QR Code</a>
+
+<script>
+  let currentURL = new URL(window.location.href);
+
+  let path = currentURL.pathname;
+
+  let newPath = path.replace(/\/edit/, '/view');
+
+  let newURL = `${currentURL.origin}${newPath}${currentURL.search}`;
+
+  const qr = new QRious({
+      element: document.getElementById('qrCode'),
+      value: newURL,
+      size: 200,
+      level: 'H'
+  });
+
+  function downloadQRCode() {
+      const canvas = document.getElementById('qrCode');
+      const link = document.getElementById('downloadLink');
+      link.href = canvas.toDataURL('image/png');
+  }
+
+  document.getElementById('downloadLink').addEventListener('click', downloadQRCode);
+</script>
+</body>
+</html>

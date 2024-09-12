@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="title"></title>
+  <link rel="shortcut icon" href="https://gitlab.com/codespacempt/pre-release/-/raw/main/public/favicon.png?ref_type=heads" type="image/x-icon">
+  
+  <!-- Include Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  <!-- Include CodeMirror CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/monokai.min.css">
+  <link rel="stylesheet" href="../css/view-style.css">
+</head>
+<body>
+  <div class="wrapper" style="display: none;">
+    <div class="container">
+        <div class="tabs">
+          <ul>
+            <li class="sign_in_li" id="viewrepo" role="button">View</li>
+            <li class="sign_up_li" id="editrepo" role="button">Edit</li>
+          </ul>
+        </div>
+    </div>
+  </div>
+  <div id="file-structure"></div><br>
+  <div id="editing">
+  <label for="filename" style="display: none;">File Name:</label>
+  <input type="text" id="filename" name="filename" placeholder="Enter file name">
+  <button onclick="saveFile()">Save Changes</button>
+  <button onclick="createZip()" style="background-color: blue; border: 3px solid blue; display: block;">Save repository</button>
+  <br><br>
+
+  <textarea id="code" style="display: none;"></textarea>
+  <br>
+
+  <div id="preview"></div>
+
+  <!-- Include CodeMirror and other libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/2.0.0/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/agate.min.css"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBV-ORfPHX4ceoitgqxHAcGpY-mILltv-4",
+      authDomain: "codespacempt-e73bc.firebaseapp.com",
+      projectId: "codespacempt-e73bc",
+      storageBucket: "codespacempt-e73bc.appspot.com",
+      messagingSenderId: "696364541552",
+      appId: "1:696364541552:web:3c9e760749ea15ce1cf6b5"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var repoName = urlParams.get('repoName') || 'default-repo';
+    var uID = urlParams.get('uid') || 'no-uid';
+    var fileSystem = JSON.parse(localStorage.getItem(repoName)) || {};
+
+    // Save repository to Firestore
+    function saveToFirestore() {
+      const repoName = new URLSearchParams(window.location.search).get('repoName') || 'default-repo';
+      db.collection("repos").doc(repoName).where("uid", "==", uID).update({ files: fileSystem })
+        .then(() => console.log("Saved to Firestore"))
+        .catch(error => console.error("Error saving: ", error));
+    }
+
+    // Load repository from Firestore
+    function loadFromFirestore() {
+      const repoName = new URLSearchParams(window.location.search).get('repoName') || 'default-repo';
+      db.collection("repos").doc(repoName).get().then((doc) => {
+        if (doc.exists) {
+          fileSystem = doc.data().files || {};
+          renderFileStructure(document.getElementById('file-structure'), fileSystem);
+        } else {
+          console.log("Repo not found.");
+        }
+      }).catch((error) => console.error("Error loading: ", error));
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      loadFromFirestore();
+    });
+
+    function saveToLocalStorage() {
+      localStorage.setItem(repoName, JSON.stringify(fileSystem));
+    }
+
+    function getIconClass(fileName) {
+      const extension = fileName.split('.').pop().toLowerCase();
+      const icons = {
+        py: 'fab fa-python',
+        html: 'fab fa-html5',
+        css: 'fab fa-css3-alt',
+        js: 'fab fa-js-square',
+        java: 'fab fa-java',
+        cpp: 'fas fa-code',
+        txt: 'fas fa-file-alt',
+        json: 'fas fa-file-alt',
+        md: 'fas fa-file-alt',
+          git: "fab fa-git-alt",
+  php: 'fab fa-php',
+  rb: 'fas fa-gem',       // Ruby
+  ts: 'fab fa-js-square', // TypeScript (using JS icon)
+  xml: 'fas fa-code',     // XML file
+  yaml: 'fas fa-file-alt', // YAML file
+  sh: 'fas fa-terminal',   // Shell script
+  docker: 'fab fa-docker', // Docker
+  sql: 'fas fa-database',  // SQL Database
+  go: 'fab fa-golang',     // Go (using external Golang icon)
+  swift: 'fab fa-swift',   // Swift
+  cs: 'fab fa-microsoft',  // C# (using Microsoft logo)
+  zip: 'fas fa-file-archive', // Compressed file
+  pdf: 'fas fa-file-pdf',   // PDF file
+  png: 'fas fa-file-image', // PNG image
+  jpg: 'fas fa-file-image', // JPG image
+  mp3: 'fas fa-file-audio', // Audio file
+  mp4: 'fas fa-file-video', // Video file
+  exe: 'fas fa-file',       // Executable
+  iso: 'fas fa-compact-disc', // ISO file
+  csv: 'fas fa-file-csv',    // CSV file
+      };
+      return icons[extension] || 'fas fa-file';
+    }
+
+    function renderFileStructure(container, structure) {
+      container.innerHTML = '';
+      Object.keys(structure).forEach(key => {
+        if (typeof structure[key] === 'object') {
+          const folder = document.createElement('div');
+          folder.classList.add('folder');
+          folder.innerHTML = `<i class="fas fa-folder"></i> ${key}`;
+          const subFolder = document.createElement('ul');
+          renderFileStructure(subFolder, structure[key]);
+          folder.appendChild(subFolder);
+          container.appendChild(folder);
+        } else {
+          const file = document.createElement('div');
+          file.classList.add('file');
+          const iconClass = getIconClass(key);
+          file.innerHTML = `<i class="${iconClass}"></i> ${key}`;
+          file.addEventListener('click', function() {
+            editor.setValue(structure[key]);
+            document.getElementById('filename').value = key;
+          });
+          container.appendChild(file);
+        }
+      });
+    }
+
+    function deleteItem(name, isFolder) {
+      const parts = name.split('/');
+      let current = fileSystem;
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i];
+        if (!current[part]) return;
+        current = current[part];
+      }
+      delete current[parts[parts.length - 1]];
+      saveToFirestore();
+      saveToLocalStorage();
+      renderFileStructure(document.getElementById('file-structure'), fileSystem);
+    }
+
+    function saveFile() {
+      const fileName = document.getElementById('filename').value;
+      if (!fileName) return;
+      const fileContent = editor.getValue();
+      const parts = fileName.split('/');
+      let current = fileSystem;
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i];
+        if (!current[part]) current[part] = {};
+        current = current[part];
+      }
+      current[parts[parts.length - 1]] = fileContent;
+      saveToFirestore();
+      saveToLocalStorage();
+      renderFileStructure(document.getElementById('file-structure'), fileSystem);
+    }
+
+    function createZip() {
+      const zip = new JSZip();
+      function addFiles(obj, path = '') {
+        Object.keys(obj).forEach(key => {
+          const value = obj[key];
+          if (typeof value === 'object') {
+            addFiles(value, path + key + '/');
+          } else {
+            zip.file(path + key, value);
+          }
+        });
+      }
+      addFiles(fileSystem);
+      zip.generateAsync({ type: 'blob' }).then(content => {
+        saveAs(content, repoName + '.zip');
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+    let view = false;
+    document.getElementById("editing").style.display = view ? "none" : "block";
+    document.getElementById("viewrepo").addEventListener("click", function() {
+        view = true;
+        document.getElementById("editing").style.display = "none";
+    });
+    document.getElementById("editrepo").addEventListener("click", function() {
+        view = false;
+        document.getElementById("editing").style.display = "block";
+    });
+});
+
+function updateTitle() {
+  const title = document.getElementById('title')
+  const urlParams = new URLSearchParams(window.location.search);
+  const repoName = urlParams.get('repoName');
+
+  title.innerHTML = `Viewing ${repoName}`
+};
+
+updateTitle();
+  </script>
+</body>
+</html>

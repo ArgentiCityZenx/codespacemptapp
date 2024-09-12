@@ -1,0 +1,4 @@
+{
+    "file-system": "https://codespacempt.gitlab.io/api/file-system/?repoName={repository}",
+    "repo-stats": "https://codespacempt.gitlab.io/api/repo-stats/?repoName={repository}"
+}

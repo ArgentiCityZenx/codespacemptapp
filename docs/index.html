@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>CodespaceMPT | Dashboard</title>
+    <link rel="stylesheet" href="https://embed.pickaxeproject.com/axe/scripts/fab/styles.css">
+    <script src="https://embed.pickaxeproject.com/axe/scripts/fab/bundle.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1599809247173489"
+     crossorigin="anonymous"></script>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1599809247173489"
+     crossorigin="anonymous"></script>
+        <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
+    rel="stylesheet"/>
+    <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+    <div id="vignette" style="display: none;">
+      <div id="vignette-content">
+          <button id="close-vignette">&times;</button>
+          <h2>Would you like to take a short satisfaction survey?</h2>
+          <button id="yes-button">Yes</button>
+          <button id="no-button">No</button>
+      </div>
+  </div>
+    <script>
+        // Verifica cuántas veces se ha visitado la página
+        let visitCount = localStorage.getItem('visitCount') || 0;
+        visitCount++;
+        localStorage.setItem('visitCount', visitCount);
+
+        // Verifica si la viñeta ya fue mostrada
+        const vignetteShown = localStorage.getItem('vignetteShown');
+
+        // Muestra la viñeta en la tercera visita si no ha sido mostrada antes
+        if (visitCount >= 3 && !vignetteShown) {
+            document.getElementById('vignette').style.display = 'flex';
+        }
+
+        // Función para cerrar la viñeta
+        document.getElementById('close-vignette').addEventListener('click', function() {
+            document.getElementById('vignette').style.display = 'none';
+        });
+
+        // Si el usuario dice que sí, lo redirige a la encuesta
+        document.getElementById('yes-button').addEventListener('click', function() {
+            localStorage.setItem('vignetteShown', 'true');
+            window.location.href = 'https://codespacempt.gitlab.io/feedback';
+        });
+
+        // Si el usuario dice que no, cierra la viñeta permanentemente
+        document.getElementById('no-button').addEventListener('click', function() {
+            localStorage.setItem('vignetteShown', 'true');
+            document.getElementById('vignette').style.display = 'none';
+        });
+    </script>
+    <div class="top">
+                  <section class="forms-section" id="forms-section">
+                    <h1 class="section-title">Login or Signup</h1>
+                    <div class="forms">
+                      <div class="form-wrapper is-active">
+                        <button type="button" class="switcher switcher-login">
+                          Login
+                          <span class="underline"></span>
+                        </button>
+                        <form class="form form-login" id="login-form">
+                          <fieldset>
+                            <legend>Please, enter your username, email and password for login.</legend>
+                            <div class="input-block">
+                              <label for="login-username">Username</label>
+                              <input id="login-username" type="text" name="username" required>
+                            </div>
+                            <div class="input-block">
+                              <label for="login-email">E-mail</label>
+                              <input id="login-email" type="email" name="email" required>
+                            </div>
+                            <div class="input-block">
+                              <label for="login-password">Password</label>
+                              <input id="login-password" type="password" name="password" required>
+                            </div>
+                          </fieldset>
+                          <button type="submit" class="btn-login">Login</button>
+                        </form>
+                      </div>
+                      <div class="form-wrapper">
+                        <button type="button" class="switcher switcher-signup">
+                          Sign Up
+                          <span class="underline"></span>
+                        </button>
+                        <form class="form form-signup" id="signup-form">
+                          <fieldset>
+                            <legend>Please, enter your email, password and password confirmation for sign up.</legend>
+                            <div class="input-block">
+                              <label for="signup-username">Username</label>
+                              <input id="signup-username" type="text" name="username" required>
+                            </div>
+                            <div class="input-block">
+                              <label for="signup-email">E-mail</label>
+                              <input id="signup-email" type="email" name="email" required>
+                            </div>
+                            <div class="input-block">
+                              <label for="signup-password">Password</label>
+                              <input id="signup-password" type="password" name="password" required>
+                            </div>
+                          </fieldset>
+                          <button type="submit" class="btn-signup">Sign Up</button>
+                        </form>
+                      </div>
+                    </div>
+                  </section>
+                
+                  <script>
+                        const switchers = [...document.querySelectorAll('.switcher')];
+        
+        switchers.forEach(item => {
+          item.addEventListener('click', function() {
+            switchers.forEach(item => item.parentElement.classList.remove('is-active'));
+            this.parentElement.classList.add('is-active');
+          });
+        });
+        
+                    document.addEventListener('DOMContentLoaded', function() {
+                      const formsSection = document.getElementById('forms-section');
+                      const loginForm = document.getElementById('login-form');
+                      const signupForm = document.getElementById('signup-form');
+                      const logoutBtn = document.getElementById('logout');
+                      const createDatabase = document.getElementById('createDatabase');
+                      const loginGoogle = document.getElementById('login-google');
+                      const loginGithub = document.getElementById('login-github');
+                      const loginBtn = document.getElementById('login-btn');
+                
+                      document.addEventListener('DOMContentLoaded', () => {
+    var storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+        updateUI(storedUser);
+        
+    }
+});
+
+                      // Verifica el estado de autenticación
+                      const isLoggedIn = localStorage.getItem('isLoggedIn');
+                
+                      if (isLoggedIn) {
+                        // Si está logueado, oculta los formularios y muestra los botones de logout y create database
+                        formsSection.style.display = 'none';
+                        logoutBtn.style.display = 'inline-block';
+                        createDatabase.style.display = 'block';
+                        loginGoogle.style.display = 'none';
+                        loginGithub.style.display = 'none';
+                        loginBtn.style.display = 'none';
+                        document.getElementById("or").style.display = "none";
+                      } else {
+                        // Si no está logueado, muestra los formularios de login y signup
+                        
+                        logoutBtn.style.display = 'none';
+                        createDatabase.style.display = 'none';
+                        loginGoogle.style.display = 'flex';
+                        loginGithub.style.display = 'flex';
+                        loginBtn.style.display = 'flex';
+                        document.getElementById("or").style.display = "block";
+                      }
+                
+                      // Maneja el inicio de sesión
+                      loginForm.addEventListener('submit', function(event) {
+                        event.preventDefault();
+                        const email = loginForm.email.value;
+                        const password = loginForm.password.value;
+                        const loginUsername = loginForm.username.value;
+                        // Obtener usuarios del localStorage
+                        const users = JSON.parse(localStorage.getItem('users')) || [];
+                        const user = users.find(user => user.email === email && user.password === password && user.username === loginUsername);
+                
+                        if (user) {
+                          localStorage.setItem('isLoggedIn', 'true');
+                          formsSection.style.display = 'none';
+                          logoutBtn.style.display = 'inline-block';
+                          createDatabase.style.display = 'block';
+                          loginGoogle.style.display = 'none';
+                          loginGithub.style.display = 'none';
+                          loginBtn.style.display = 'none';
+                          document.getElementById("or").style.display = "none";
+                          document.getElementById("greeting").innerText = loginUsername + "'s Repositories"
+                          alert('Login successful!');
+                        } else {
+                          alert('Invalid email or password.');
+                        }
+                      });
+                
+                      // Maneja el registro
+                      signupForm.addEventListener('submit', function(event) {
+                        event.preventDefault();
+                        const username = signupForm.username.value;
+                        const email = signupForm.email.value;
+                        const password = signupForm.password.value;
+                
+                        // Obtener usuarios del localStorage
+                        const users = JSON.parse(localStorage.getItem('users')) || [];
+                        const userExists = users.some(user => user.email === email);
+                
+                        if (userExists) {
+                          alert('User already exists.');
+                        } else {
+                          users.push({ username, email, password });
+                          localStorage.setItem('users', JSON.stringify(users));
+                          localStorage.setItem('isLoggedIn', 'true');
+                          formsSection.style.display = 'none';
+                          logoutBtn.style.display = 'inline-block';
+                          createDatabase.style.display = 'block';
+                          loginGoogle.style.display = 'none';
+                          loginGithub.style.display = 'none';
+                          loginBtn.style.display = 'none';
+                          document.getElementById("or").style.display = "none";
+                          document.getElementById("greeting").innerText = username + "'s Repositories"
+                          alert('Sign up successful!');
+                        }
+                      });
+                
+                      // Maneja el logout
+                      logoutBtn.addEventListener('click', function() {
+                        localStorage.removeItem('isLoggedIn');
+                        formsSection.style.display = 'none';
+                        logoutBtn.style.display = 'none';
+                        createDatabase.style.display = 'none';
+                        loginGoogle.style.display = 'flex';
+                        loginGithub.style.display = 'flex';
+                        loginBtn.style.display = 'flex';
+                        document.getElementById("or").style.display = "block";
+                        document.getElementById("greeting").innerText = "CodespaceMPT Repositories"
+                        alert('Logged out successfully.');
+                      });
+                      loginBtn.addEventListener('click', function() {
+                        formsSection.style.display = 'flex';
+                      });
+                      });
+                  </script>
+        <img id="profile-img" class="logo" alt="Logo" src="/favicon.png"><!-- Google sign-in button -->
+        <h1 class="CodespaceMPT">Dashboard</h1>
+          <div id="settings">
+            <div id="delete">
+                <label for="deleteToggle">Delete Repositories</label>
+            <input type="checkbox" id="deleteToggle">
+            </div>
+            <button id="login-btn">
+                <img src="https://www.globalnet.cl/wp-content/uploads/2019/01/correo.jpg" alt="" width="30">
+                <pre> </pre><span>Sign In or Sign Up</span></button> <center id="or">or</center> <br>
+                <div class="icons">
+                  <a id="login-google" role="button" onclick="authGoogle()">
+                    <div class="layer">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span class="fab fa-google"></span>
+                    </div>
+            <div class="text">
+            Login with Google</div>
+            </a>
+                  <a id="login-github" role="button" onclick="authGithub()">
+                    <div class="layer">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span class="fab fa-twitter"></span>
+                    </div>
+            <div class="text">
+            Login With X (Twitter)</div>
+            </a>
+            </div>
+            <button id="logout" style="display:none;">
+                Logout
+            </button>
+            <div id="userProfile">
+                <!-- User profile picture and greeting will be dynamically added here -->
+            </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBV-ORfPHX4ceoitgqxHAcGpY-mILltv-4",
+  authDomain: "codespacempt-e73bc.firebaseapp.com",
+  projectId: "codespacempt-e73bc",
+  storageBucket: "codespacempt-e73bc.appspot.com",
+  messagingSenderId: "696364541552",
+  appId: "1:696364541552:web:3c9e760749ea15ce1cf6b5"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+function handleCredentialLinking(user, credential) {
+    user.linkWithCredential(credential).then(function() {
+        console.log('Account linked successfully');
+    }).catch(function(error) {
+        console.log('Error linking account:', error);
+    });
+}
+
+function signInWithProvider(provider) {
+    auth.signInWithPopup(provider).then(function(result) {
+        var user = result.user;
+
+        if (user) {
+            console.log('User:', user);  // Debugging line to check user object
+            console.log('Additional User Info:', result.additionalUserInfo);  // Check additional user info
+
+            // Check if displayName is null and log the provider-specific data
+            if (!user.displayName && result.additionalUserInfo && result.additionalUserInfo.username) {
+                console.log('GitHub Username:', result.additionalUserInfo.username);
+                user.updateProfile({
+                    displayName: result.additionalUserInfo.username
+                }).then(() => {
+                    document.getElementById("greeting").innerText = user.displayName + " Repositories";
+                });
+            } else {
+                document.getElementById("greeting").innerText = (user.displayName || "User") + " Repositories";
+            }
+
+            // Save user info to localStorage
+            localStorage.setItem('user', JSON.stringify({
+                displayName: user.displayName,
+                photoURL: user.photoURL
+            }));
+
+            updateUI(user);
+        } else {
+            console.log('No user is signed in.');
+        }
+    }).catch(function(error) {
+        if (error.code === 'auth/account-exists-with-different-credential') {
+            var pendingCred = error.credential;
+            var email = error.email;
+            auth.fetchSignInMethodsForEmail(email).then(function(methods) {
+                if (methods[0] === 'google.com') {
+                    var provider = new firebase.auth.GoogleAuthProvider();
+                    auth.signInWithPopup(provider).then(function(result) {
+                        handleCredentialLinking(result.user, pendingCred);
+                    });
+                } else if (methods[0] === 'x.com') {
+                    var provider = new firebase.auth.TwitterAuthProvider();
+                    auth.signInWithPopup(provider).then(function(result) {
+                        handleCredentialLinking(result.user, pendingCred);
+                    });
+                }
+            });
+        } else {
+            console.log(error.message);
+        }
+    });
+}
+document.getElementById("login-google").addEventListener("click", function() {
+    const googleProvider = new firebase.auth.GoogleAuthProvider();
+    signInWithProvider(googleProvider);
+});
+
+document.getElementById("login-github").addEventListener("click", function() {
+    const githubProvider = new firebase.auth.TwitterAuthProvider();
+    signInWithProvider(githubProvider);
+});
+
+function authGoogle() {
+  const googleProvider = new firebase.auth.GoogleAuthProvider();
+  signInWithProvider(googleProvider);
+};
+
+function authGithub() {
+  const githubProvider = new firebase.auth.TwitterAuthProvider();
+  signInWithProvider(githubProvider);
+};
+
+document.getElementById("logout").addEventListener("click", function() {
+    auth.signOut().then(function() {
+        document.getElementById("profile-img").src = "/favicon.png";
+        document.getElementById("greeting").innerText = "CodespaceMPT Repositories";
+        document.getElementById("logout").style.display = "none";
+        document.getElementById("login-google").style.display = "flex";
+        document.getElementById("login-github").style.display = "flex";
+        document.getElementById("login-btn").style.display = "flex";
+        document.getElementById("or").style.display = "block";
+        document.getElementById("createDatabase").style.display = "none"
+
+        // Clear user info from localStorage
+        localStorage.removeItem('user');
+    }).catch(function(error) {
+        console.log(error.message);
+    });
+});
+
+// Update UI based on user info
+function updateUI(user) {
+    var profilePic = document.getElementById('profile-img');
+    var greeting = document.getElementById('greeting');
+    var settings = document.getElementById('settings');
+
+    if (user) {
+        // Replace logo with user's profile picture
+        profilePic.src = user.photoURL;
+
+        // Change "Dashboard" header to "user's dashboard"
+        greeting.textContent = `${user.displayName}'s Repositories`;
+
+        // Show the logout button and hide the login buttons
+        document.getElementById("logout").style.display = "block";
+        document.getElementById("login-google").style.display = "none";
+        document.getElementById("login-github").style.display = "none";
+        document.getElementById("login-btn").style.display = "none";
+        document.getElementById("or").style.display = "none";
+        document.getElementById("createDatabase").style.display = "block";
+        
+    } else {
+        // Reset logo to the default image
+        profilePic.src = '/favicon.png';
+
+        // Change "user's dashboard" header back to "Dashboard"
+        greeting.textContent = 'Repositories';
+
+        // Show the settings element after user is logged out
+        settings.style.display = 'block';
+
+        // Show the login buttons and hide the logout button
+        document.getElementById("logout").style.display = "none";
+        document.getElementById("login-google").style.display = "flex";
+        document.getElementById("login-github").style.display = "flex";
+        document.getElementById("login-btn").style.display = "flex";
+        document.getElementById("or").style.display = "block";
+        document.getElementById("createDatabase").style.display = "none";
+        
+    }
+}
+
+// Check if the user is already logged in on page load
+document.addEventListener('DOMContentLoaded', () => {
+    var storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+        updateUI(storedUser);
+        
+    }
+});
+</script>
+        </div>
+        <div id="userProfile">
+            <!-- User profile picture and greeting will be dynamically added here -->
+        </div>
+        
+    </div>
+
+    <!-- Left-side menu (folders) -->
+    <div class="left-side-menu">
+      <h1 class="repotitle" id="greeting">CodespaceMPT Repositories</h1>
+      <input type="text" id="searchBar" placeholder="Search Repositories">
+      <hr>
+      <h3>Your Repositories</h3>
+      <ul id="userRepos"></ul>
+  </div>
+  
+  <form class="div" id="repoForm" action="edit/index.html" method="GET">
+      <h1>Make a New Repository</h1>
+      <p>Write your code and save the repository as a ZIP file. You can also upload files in the code editor.</p>
+      <label for="repoName">Enter Repository Name:</label>
+      <input type="text" id="repoName" name="repoName" placeholder="Enter a name for your repository">
+      <button type="submit" class="submit">Create Repository</button>
+  </form>
+  
+  <div class="div">
+      <h1>APIs</h1>
+      <p>These are our APIs. They show you your repositories or user in a JSON file. If you are not logged in or have no repositories, then the JSON files will come out empty and nothing will show up. We are planning to add more things to the APIs.</p>
+      <button onclick="redirect()" id="api-redir" class="submit">Redirect to APIs</button>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+    document.getElementById('api-redir').addEventListener('click', function() {
+        window.open('/api/apis.json', '_blank');
+    })
+
+      if (!firebase.apps.length) {
+        // Solo inicializa Firebase si no ha sido inicializado
+        firebase.initializeApp(firebaseConfig);
+      } else {
+        // Firebase ya está inicializado
+        firebase.app(); // Puedes acceder a la instancia inicializada si lo necesitas
+}
+
+      var db = firebase.firestore();
+  
+      function generateRandomUserId() {
+    const length = 1000;
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let userId = '';
+    for (let i = 0; i < length; i++) {
+        userId += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    return userId;
+}
+
+function getUserId() {
+    let userId = localStorage.getItem('user_uid');
+    if (!userId) {
+        userId = generateRandomUserId();
+        localStorage.setItem('user_uid', userId);
+    }
+    return userId;
+}
+
+const userId = getUserId();
+
+
+      function filterRepos() {
+          var input = document.getElementById('searchBar');
+          var filter = input.value.toLowerCase();
+          var ul = document.getElementById('folders');
+          var li = ul.getElementsByTagName('li');
+          
+          for (var i = 0; i < li.length; i++) {
+              var a = li[i].getElementsByTagName('a')[0];
+              if (a.innerHTML.toLowerCase().indexOf(filter) > -1) {
+                  li[i].style.display = "";
+              } else {
+                  li[i].style.display = "none";
+              }
+          }
+      }
+  
+      document.getElementById("searchBar").addEventListener('keyup', filterRepos);
+  
+function addRepoToList(ulElement, repoName, description) {
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.textContent = `${repoName} | ${description}`;
+    a.href = '/edit?repoName=' + encodeURIComponent(repoName);
+    a.target = "_blank";
+    li.appendChild(a);
+
+    ulElement.appendChild(li);
+}
+
+function addAllRepoToList(ulElement, repoName, description) {
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.textContent = `${repoName} | ${description}`;
+    a.href = '/view?repoName=' + encodeURIComponent(repoName);
+    a.target = "_blank";
+    li.appendChild(a);
+
+    ulElement.appendChild(li);
+}
+  
+function saveRepo(repoName, description) {
+  db.collection('repos').doc(repoName).get().then((docSnapshot) => {
+        if (docSnapshot.exists) {
+            // If the document exists, show an alert
+            alert("A repository with the same name already exists.");
+        } else {
+            // If the document doesn't exist, save the new repository
+            db.collection('repos').doc(repoName).set({
+                name: repoName,
+                description: description,
+                uid: userId  // Store the user's UID
+            })
+            .then(() => {
+                console.log("Repository successfully saved!");
+            })
+            .catch((error) => {
+                console.error("Error saving the repository: ", error);
+            });
+        }
+    }).catch((error) => {
+        console.error("Error checking if the document exists: ", error);
+    });
+}
+  
+function loadUserRepos() {
+    var ulUserRepos = document.getElementById('userRepos');
+    db.collection('repos').where("uid", "==", userId).get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            var repo = doc.data();
+            addRepoToList(ulUserRepos, repo.name, repo.description);
+        });
+    }).catch((error) => {
+        console.error("Error getting user repositories: ", error);
+    });
+}
+
+
+function loadAllRepos() {
+    var ulAllRepos = document.getElementById('folders');
+    db.collection('repos').get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            var repo = doc.data();
+            console.log("All Repo:", repo);  // Verifica qué datos estás obteniendo
+            addAllRepoToList(ulAllRepos, repo.name, repo.description);
+        });
+    }).catch((error) => {
+        console.error("Error getting all repositories: ", error);
+    });
+}
+
+  
+function createRepo() {
+    var repoName = document.getElementById('repoName').value;
+    var description = prompt('Enter description for the repository:');
+    
+    if (!description) {
+        description = "No description provided";
+    }
+
+    console.log("Creating Repo:", repoName, description);  // Verifica los valores antes de guardarlos
+
+    if (repoName) {
+        addRepoToList(document.getElementById('userRepos'), repoName, description);
+        saveRepo(repoName, description);
+        document.getElementById('repoName').value = '';
+    } else {
+        console.log("Repository name cannot be empty");
+    }
+}
+
+  
+      window.addEventListener('DOMContentLoaded', () => {
+          loadUserRepos();
+          loadAllRepos();
+      });
+  
+      document.getElementById('repoForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+          createRepo();
+      });
+  </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejo de la autenticación
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            document.getElementById('createDatabase').style.display = 'block';
+            document.getElementById('createDatabaseButton').addEventListener('click', () => {
+                createDatabase(user);
+            });
+            displayDatabases(user);
+        } else {
+            // Redirigir al login si no está autenticado
+            document.getElementById('createDatabase').style.display = 'none';
+            document.getElementById('databaseList').innerHTML = '';
+        }
+    });
+
+    // Crear un nuevo database y guardarlo en localStorage
+    function createDatabase(user) {
+        const dbName = prompt('Enter database name:');
+        if (dbName) {
+            const dbPassword = prompt('Set a password for this database:');
+            const databases = JSON.parse(localStorage.getItem(user.uid)) || [];
+            const newDatabase = { name: dbName, content: '', password: dbPassword };
+            databases.push(newDatabase);
+            localStorage.setItem(user.uid, JSON.stringify(databases));
+            displayDatabases(user);
+        }
+    }
+
+    // Mostrar la lista de databases
+    function displayDatabases(user) {
+        const databases = JSON.parse(localStorage.getItem(user.uid)) || [];
+        const databaseList = document.getElementById('databaseList');
+        databaseList.innerHTML = `<h3>${user.displayName || "User"} Databases</h3>`;
+        databases.forEach((db, index) => {
+            const dbElement = document.createElement('div');
+            dbElement.innerHTML = `
+                <p>${db.name}</p>
+                <button onclick="editDatabase('${db.name}')">Edit</button>
+                <button onclick="deleteDatabase(${index}, '${user.uid}')">Delete</button>
+            `;
+            databaseList.appendChild(dbElement);
+        });
+    }
+});
+
+// Función para redirigir al editor de texto
+function editDatabase(dbName) {
+    const user = firebase.auth().currentUser;
+    const databases = JSON.parse(localStorage.getItem(user.uid)) || [];
+    const database = databases.find(db => db.name === dbName);
+
+    if (!database.password) {
+        // Primera vez que se accede, definir contraseña
+        const newPassword = prompt('Set a password for this database:');
+        if (newPassword) {
+            database.password = newPassword;
+            localStorage.setItem(user.uid, JSON.stringify(databases));
+            alert('Password set successfully. Redirecting to the editor.');
+            window.location.href = `./edit-database?databaseName=${encodeURIComponent(dbName)}`;
+        } else {
+            alert('Password is required.');
+        }
+    } else {
+        // Solicitar contraseña existente
+        const enteredPassword = prompt('Enter the password for this database:');
+        if (database.password === enteredPassword) {
+            window.location.href = `/edit-database?databaseName=${encodeURIComponent(dbName)}`;
+        } else {
+            alert('Incorrect password. Redirecting to home page.');
+            window.location.href = 'index.html';
+        }
+    }
+}
+
+// Función para eliminar una base de datos
+function deleteDatabase(index, userId) {
+    const databases = JSON.parse(localStorage.getItem(userId)) || [];
+    databases.splice(index, 1);
+    localStorage.setItem(userId, JSON.stringify(databases));
+    alert('Database deleted successfully. Refresh for view the changes');
+    const user = firebase.auth().currentUser;
+    displayDatabases(user);
+}
+</script>
+
+<div class="left-side-menu">
+<h3>All Repositories</h3>
+<input type="text" id="search-bar" placeholder="Search repositories...">
+<ul id="folders"></ul>
+<script>
+        function loadAndFilterRepos(query = '') {
+            db.collection("repos").get().then((querySnapshot) => {
+                const reposContainer = document.getElementById('folders');
+                reposContainer.innerHTML = ''; // Limpiar contenedor
+
+                querySnapshot.forEach((doc) => {
+                    const repoName = doc.id;
+                    const description = doc.data().description || 'No description';
+
+                    // Filtrar por nombre de repositorio
+                    if (repoName.toLowerCase().includes(query.toLowerCase())) {
+                        addAllRepoToList(reposContainer, repoName, description);
+                    }
+                });
+            }).catch((error) => {
+                console.error("Error fetching the repositories: ", error);
+            });
+        }
+
+        // Evento de búsqueda
+        document.getElementById('search-bar').addEventListener('input', function(e) {
+            loadAndFilterRepos(e.target.value); // Filtrar repositorios al escribir
+        });
+
+        function loadAndFilterMyRepos(query = '') {
+            db.collection("repos").get().then((querySnapshot) => {
+                const reposContainer = document.getElementById('userRepos');
+                reposContainer.innerHTML = ''; // Limpiar contenedor
+
+                querySnapshot.forEach((doc) => {
+                    const repoName = doc.id;
+                    const description = doc.data().description || 'No description';
+
+                    // Filtrar por nombre de repositorio
+                    if (repoName.toLowerCase().includes(query.toLowerCase())) {
+                        addAllRepoToList(reposContainer, repoName, description);
+                    }
+                });
+            }).catch((error) => {
+                console.error("Error fetching the repositories: ", error);
+            });
+        }
+
+        // Evento de búsqueda
+        document.getElementById('searchBar').addEventListener('input', function(e) {
+            loadAndFilterMyRepos(e.target.value); // Filtrar repositorios al escribir
+        });
+</script>
+</div>
+  <footer>
+    <section>
+      <ul class="socials">
+        <li><a href="https://x.com/codespacempt" class="fa-brands fa-x-twitter"></a></li>
+        <li><a href="https://www.youtube.com/@CodespaceMPT" class="fa-brands fa-youtube"></a></li>
+        <li><a href="https://gitlab.com/codespacempt/" class="fa-brands fa-gitlab"></a></li>
+      </ul>
+      <ul class="links">
+        <li><a href="https://codespacempt.gitlab.io/">Home</a></li>
+        <li><a href="https://codespacempt.gitlab.io/pre-release/">Pre Release</a></li>
+        <li><a href="mailto:codespacempt@gmail.com">Contact Us</a></li>
+      </ul>
+      <p class="legal">© <span id="current-year"></span> All rights reserved</p>
+    </section>
+  </footer>
+  <script>    
+const year = document.querySelector("#current-year")
+year.innerHTML = new Date().getFullYear()
+</script>
+        <script>
+            window.onload = function() {
+                window.scrollTo(0, 0);
+            };
+        </script>
+        <div id="rendering-information" data-height="500px" data-width="100%" data-formid="FavaLoro_JP4W6" data-frame-source="https://embed.pickaxeproject.com/axe?id=FavaLoro_JP4W6&mode=embed_gold&host=beta&theme=dark&opacity=100&font_header=Real+Head+Pro&size_header=30&font_body=Real+Head+Pro&size_body=16&font_labels=Real+Head+Pro&size_labels=14&font_button=Real+Head+Pro&size_button=16&c_fb=08090B&c_ff=08090B&c_fbd=FFFFFF&c_rb=7F7F7F&c_bb=FFFFFF&c_bt=000000&c_t=FFFFFF&s_ffo=100&s_rbo=100&s_bbo=100&s_f=minimalist&s_b=filled&s_t=2&s_to=1&s_r=2" data-title="CodespaceAI"></div>
+</body>
+</html>
